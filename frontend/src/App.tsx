@@ -1,9 +1,9 @@
-// App.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const App: React.FC = () => {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
 
   const handleDownload = async () => {
@@ -14,8 +14,23 @@ const App: React.FC = () => {
 
     setError('');
     setLoading(true);
+    setProgress(0);
 
     try {
+      const interval = setInterval(async () => {
+        try {
+          const response = await fetch('http://localhost:5000/progress');
+          const data = await response.json();
+          setProgress(data.progress);
+          if (data.progress >= 100) {
+            clearInterval(interval);
+          }
+        } catch (err) {
+          console.error(err);
+          clearInterval(interval);
+        }
+      }, 1000);
+
       const response = await fetch('http://localhost:5000/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,6 +49,9 @@ const App: React.FC = () => {
       document.body.appendChild(a);
       a.click();
       a.remove();
+
+      // Lorsque le téléchargement est terminé, définir la progression à 100%
+      setProgress(100);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -42,24 +60,28 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+    <div className="app-container">
       <h1>YouTube Downloader</h1>
       <input
         type="text"
         placeholder="Entrez l'URL de la vidéo YouTube"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        style={{ width: '80%', padding: '10px', fontSize: '16px' }}
+        className="url-input"
       />
-      <br />
       <button
         onClick={handleDownload}
         disabled={loading}
-        style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px' }}
+        className="download-button"
       >
         {loading ? 'Téléchargement...' : 'Télécharger en 4K'}
       </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {progress > 0 && (
+        <div className="progress-bar-container">
+          <div className="progress-bar" style={{ width: `${progress}%` }} />
+        </div>
+      )}
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 };

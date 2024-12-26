@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const youtubedl = require('youtube-dl-exec');
+const { exec } = require('youtube-dl-exec');
 
 const app = express();
 app.use(cors());
@@ -14,16 +14,50 @@ app.post('/download', async (req, res) => {
   }
 
   try {
-    res.setHeader('Content-Disposition', 'attachment; filename=\"video.mp4\"');
-    const video = youtubedl.exec(url, {
-      format: 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
-      output: '-',
+    // Configure les en-têtes pour le fichier téléchargé
+    res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
+
+    const video = exec(
+      url,
+      {
+        format: 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
+        output: '-',
+        ffmpegLocation: 'C:\\path\\to\\ffmpeg\\bin\\ffmpeg.exe', // Chemin FFmpeg
+        mergeOutputFormat: 'mp4',
+      },
+      { stdio: ['ignore', 'pipe', 'pipe'] }
+    );
+
+    video.stdout.on('data', (chunk) => {
+      try {
+        res.write(chunk);
+      } catch (error) {
+        console.warn('Erreur lors de l\'écriture dans le flux de la réponse :', error.message);
+      }
     });
 
-    video.stdout.pipe(res);
+    video.stdout.on('end', () => {
+      try {
+        res.end();
+        console.log('Téléchargement terminé.');
+      } catch (error) {
+        console.warn('Erreur lors de la fermeture de la réponse :', error.message);
+      }
+    });
+
+    video.on('error', (err) => {
+      console.error('Erreur lors du téléchargement :', err);
+      if (!res.headersSent) {
+        res.status(500).send('Erreur de téléchargement');
+      }
+    });
   } catch (err) {
-    res.status(500).send('Error downloading video');
+    console.error('Erreur globale :', err.message);
+    if (!res.headersSent) {
+      res.status(500).send('Erreur lors du traitement de la requête');
+    }
   }
 });
 
+// Démarre le serveur
 app.listen(5000, () => console.log('Server running on http://localhost:5000'));

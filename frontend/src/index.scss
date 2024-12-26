@@ -1,10 +1,70 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #141e30, #243b55);
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
 }
 
-div {
-  padding: 20px;
+.app-container {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.url-input {
+  width: 80%;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  outline: none;
+}
+
+.download-button {
+  background: linear-gradient(135deg, #6dd5fa, #2980b9);
+  border: none;
+  padding: 10px 20px;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.download-button:hover {
+  background: linear-gradient(135deg, #6dd5fa, #3498db);
+}
+
+.download-button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.progress-bar-container {
+  width: 80%;
+  height: 20px;
+  background: #333;
+  border-radius: 10px;
+  margin: 20px auto;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(135deg, #6dd5fa, #3498db);
+  transition: width 0.5s ease;
+}
+
+.error-message {
+  color: #ff4d4d;
+  margin-top: 20px;
 }
