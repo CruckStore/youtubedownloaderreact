@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "youtube-dl-exec": "^3.0.10",
     "ytdl-core": "^4.11.5"
   }
 }
