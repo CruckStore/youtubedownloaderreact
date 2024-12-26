@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const ytdl = require('ytdl-core');
+const youtubedl = require('youtube-dl-exec');
 
 const app = express();
 app.use(cors());
@@ -9,13 +9,18 @@ app.use(express.json());
 app.post('/download', async (req, res) => {
   const { url } = req.body;
 
-  if (!ytdl.validateURL(url)) {
+  if (!url) {
     return res.status(400).send('Invalid YouTube URL');
   }
 
   try {
-    res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
-    ytdl(url, { quality: 'highestvideo' }).pipe(res);
+    res.setHeader('Content-Disposition', 'attachment; filename=\"video.mp4\"');
+    const video = youtubedl.exec(url, {
+      format: 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
+      output: '-',
+    });
+
+    video.stdout.pipe(res);
   } catch (err) {
     res.status(500).send('Error downloading video');
   }
